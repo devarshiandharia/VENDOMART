@@ -250,7 +250,8 @@ class AdminController extends Controller
             $pdf = Pdf::loadView('admin.pdf.single-order', compact('order'));
             
             Mail::send('emails.invoice', ['order' => $order], function($message) use ($order, $pdf) {
-                $message->to($order->user->email)
+                $email = $order->user->email ?? 'no-email@vendomart.com';
+                $message->to($email)
                         ->subject('TRANSACTION_COMPLETED: Your Vendomart Invoice #' . $order->id)
                         ->attachData($pdf->output(), "invoice_order_" . $order->id . ".pdf");
             });
@@ -283,8 +284,8 @@ class AdminController extends Controller
 
             foreach ($orders as $order) {
                 $row['Order ID']  = $order->id;
-                $row['Customer']  = $order->user->name;
-                $row['Email']     = $order->user->email;
+                $row['Customer']  = $order->user->name ?? 'Deleted User';
+                $row['Email']     = $order->user->email ?? 'N/A';
                 $row['Phone']     = $order->phone;
                 $row['Address']   = $order->address;
                 $row['City']      = $order->city;

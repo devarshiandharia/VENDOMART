@@ -20,8 +20,8 @@
                             <div class="col-xl-6 col-md-6 mt-3 border border-primary p-4 card">
                                 
                                     <h5 class="text-info-neon mb-4"><i class="fas fa-user-tag me-2"></i>Customer Information</h5>
-                                    <div class="mb-2"><span class="text-secondary">NAME:</span> <span class="text-light ms-2">{{ $order->user->name }}</span></div>
-                                    <div class="mb-2"><span class="text-secondary">EMAIL:</span> <span class="text-light ms-2">{{ $order->user->email }}</span></div>
+                                    <div class="mb-2"><span class="text-secondary">NAME:</span> <span class="text-light ms-2">{{ $order->user->name ?? 'Deleted User' }} @if($order->user && $order->user->trashed()) <span class="badge bg-danger ms-1" style="font-size: 0.6rem;">DELETED_ENTITY</span> @endif</span></div>
+                                    <div class="mb-2"><span class="text-secondary">EMAIL:</span> <span class="text-light ms-2">{{ $order->user->email ?? 'N/A' }}</span></div>
                                     <div class="mb-2"><span class="text-secondary">PHONE:</span> <span class="text-light ms-2">{{ $order->phone }}</span></div>
                                     <div class="mb-2"><span class="text-secondary">SHIPPING_NODE:</span> <span class="text-light ms-2">{{ $order->address }}, {{ $order->city }}, {{ $order->state }} - {{ $order->zip_code }}</span></div>
                                 

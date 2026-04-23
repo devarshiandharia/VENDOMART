@@ -69,7 +69,16 @@
                             @foreach($orders as $order)
                             <tr>
                                 <td class="fw-bold text-info">#{{ $order->id }}X</td>
-                                <td>{{ $order->user->name }}</td>
+                                <td>
+                                    @if($order->user)
+                                        {{ $order->user->name }}
+                                        @if($order->user->trashed())
+                                            <span class="badge bg-danger ms-1" style="font-size: 0.5rem; vertical-align: middle;">DELETED</span>
+                                        @endif
+                                    @else
+                                        <span class="text-secondary italic">Unknown User</span>
+                                    @endif
+                                </td>
                                 <td class="text-white">₹ {{ number_format($order->total_amount, 0) }}</td>
                                 <td>
                                     <div class="text-secondary small">{{ $order->city }}, {{ $order->state }}</div>
