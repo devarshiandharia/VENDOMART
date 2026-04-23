@@ -240,6 +240,7 @@
                         <h4 class="text-white orbitron mb-4" style="letter-spacing: 2px;">PAYMENT_PROTOCOL</h4>
                         
                         <div class="row g-4">
+                            @if($grandTotal <= 50000)
                             <div class="col-md-6">
                                 <div class="payment-option-card" onclick="selectPayment('cod')">
                                     <input type="radio" name="payment_method" value="cod" id="payment_cod" class="d-none" checked>
@@ -256,7 +257,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            @endif
+                            <div class="{{ $grandTotal > 50000 ? 'col-12' : 'col-md-6' }}">
                                 <div class="payment-option-card" onclick="selectPayment('card')">
                                     <input type="radio" name="payment_method" value="card" id="payment_card" class="d-none">
                                     <div class="payment-card-inner" id="card_card">
@@ -271,6 +273,11 @@
                                         </div>
                                     </div>
                                 </div>
+                        @if($grandTotal > 50000)
+                            <div class="alert alert-info mt-3 border-info bg-transparent text-info small orbitron">
+                                <i class="fa-solid fa-circle-info me-2"></i> SECURITY_NOTICE: Transactions exceeding 50,000 CR require encrypted card verification.
+                            </div>
+                        @endif
                             </div>
                         </div>
 
@@ -279,15 +286,15 @@
                             <div class="row g-3">
                                 <div class="col-12">
                                     <label class="text-secondary small orbitron d-block mb-2">CARD_IDENTIFIER</label>
-                                    <input type="text" name="card_number" class="form-control quantity-input w-100" placeholder="XXXX XXXX XXXX XXXX">
+                                    <input type="text" name="card_number" class="form-control quantity-input w-100" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" minlength="19">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="text-secondary small orbitron d-block mb-2">EXPIRY_DATE</label>
-                                    <input type="text" name="expiry" class="form-control quantity-input w-100" placeholder="MM/YY">
+                                    <input type="text" name="expiry" class="form-control quantity-input w-100" placeholder="MM/YY" maxlength="5" minlength="5">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="text-secondary small orbitron d-block mb-2">SECURITY_CVV</label>
-                                    <input type="password" name="cvv" class="form-control quantity-input w-100" placeholder="***">
+                                    <input type="password" name="cvv" class="form-control quantity-input w-100" placeholder="***" maxlength="3" minlength="3">
                                 </div>
                             </div>
                         </div>
@@ -325,9 +332,45 @@ function selectPayment(method) {
     }
 }
 
-// Initial state
+// Card Auto-formatting and Validation
 document.addEventListener('DOMContentLoaded', () => {
-    selectPayment('cod');
+    const cardNumber = document.querySelector('input[name="card_number"]');
+    const expiry = document.querySelector('input[name="expiry"]');
+    const cvv = document.querySelector('input[name="cvv"]');
+
+    // Card Number Formatting (XXXX-XXXX-XXXX-XXXX)
+    cardNumber.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 16) value = value.slice(0, 16);
+        
+        const chunks = value.match(/.{1,4}/g);
+        e.target.value = chunks ? chunks.join('-') : '';
+    });
+
+    // Expiry Date Formatting (MM/YY)
+    expiry.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 4) value = value.slice(0, 4);
+        
+        if (value.length > 2) {
+            e.target.value = value.slice(0, 2) + '/' + value.slice(2);
+        } else {
+            e.target.value = value;
+        }
+    });
+
+    // CVV Limit (3 digits)
+    cvv.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 3) value = value.slice(0, 3);
+        e.target.value = value;
+    });
+
+    @if($grandTotal > 50000)
+        selectPayment('card');
+    @else
+        selectPayment('cod');
+    @endif
 });
 </script>
 <style>

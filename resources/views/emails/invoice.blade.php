@@ -10,10 +10,10 @@
 </head>
 <body>
     <div class="box">
-        <div class="badge">TRANSACTION_SUCCESSFUL</div>
-        <h2 style="color: #00f2ff; font-family: 'Orbitron', sans-serif;">GEAR_TRANSACTION_LOG</h2>
+        <div class="badge">{{ $order->payment_method == 'card' ? 'PAYMENT_RECEIVED' : 'ORDER_LOGGED' }}</div>
+        <h2 style="color: #00f2ff; font-family: 'Orbitron', sans-serif;">TRANSACTION_SUMMARY</h2>
         <p>Greetings, {{ $order->user->name }}.</p>
-        <p>Your transaction has been finalized and successfully verified. Your requested gear modules are now assigned to your profile.</p>
+        <p>Thank you for your {{ $order->payment_method == 'card' ? 'payment' : 'order' }} via {{ strtoupper($order->payment_method) }}. Your requested gear modules are now assigned to your profile log.</p>
         
         <p>Order ID: <strong>#{{ $order->id }}</strong></p>
         <p>Total Credits: <strong>₹ {{ number_format($order->total_amount, 2) }}</strong></p>

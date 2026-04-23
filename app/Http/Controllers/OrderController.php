@@ -22,9 +22,9 @@ class OrderController extends Controller
 
         $request->validate([
             'payment_method' => 'required|in:cod,card',
-            'card_number' => 'required_if:payment_method,card',
-            'expiry' => 'required_if:payment_method,card',
-            'cvv' => 'required_if:payment_method,card',
+            'card_number' => 'required_if:payment_method,card|string|size:19',
+            'expiry' => 'required_if:payment_method,card|string|size:5',
+            'cvv' => 'required_if:payment_method,card|string|size:3',
             'phone' => 'required|string',
             'address' => 'required|string',
             'city' => 'required|string',
@@ -62,7 +62,10 @@ class OrderController extends Controller
                 DB::commit();
                 session()->forget('cart');
 
-                return redirect('user/order-history')->with('success', 'Order placed successfully!');
+                // Send unified thanking email for COD
+                $this->sendInvoiceEmail($order);
+
+                return redirect('user/order-history')->with('success', 'Order placed successfully! A confirmation email has been sent.');
             } catch (\Exception $e) {
                 DB::rollback();
                 return back()->with('error', 'Something went wrong: ' . $e->getMessage());
@@ -72,12 +75,17 @@ class OrderController extends Controller
         // For Card payment, generate OTP
         $otp = rand(100000, 999999);
 
+        $cardLastFour = substr(str_replace('-', '', $request->card_number), -4);
+        $cardType = collect(['VISA', 'MASTERCARD'])->random();
+
         // Store order data in session temporarily
         session()->put('pending_order', array_merge([
             'user_id' => Auth::id(),
             'cart' => $cart,
             'payment_method' => $request->payment_method,
             'otp' => $otp,
+            'card_last_four' => $cardLastFour,
+            'card_type' => $cardType,
             'expires_at' => now()->addMinutes(10),
         ], $addressData));
 
@@ -129,6 +137,8 @@ class OrderController extends Controller
                 'state' => $data['state'],
                 'zip_code' => $data['zip_code'],
                 'phone' => $data['phone'],
+                'card_last_four' => $data['card_last_four'] ?? null,
+                'card_type' => $data['card_type'] ?? null,
             ]);
 
             foreach ($data['cart'] as $id => $item) {

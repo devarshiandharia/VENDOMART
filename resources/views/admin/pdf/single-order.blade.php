@@ -53,7 +53,13 @@
                     Method: {{ $order->payment_method == 'card' ? 'Payment by Card' : 'Cash on Delivery' }}<br>
                     Status: 
                     @if($order->payment_method == 'card')
-                        PAID (Success)
+                        PAID (Success)<br>
+                        @if($order->card_last_four)
+                            <div style="margin-top: 5px; font-size: 11px;">
+                                <span style="padding: 2px 5px; background: #000; color: #fff; border-radius: 3px; font-weight: bold; font-style: italic;">{{ $order->card_type }}</span>
+                                <span style="margin-left: 5px;">**** {{ $order->card_last_four }}</span>
+                            </div>
+                        @endif
                     @else
                         {{ $order->status == 'Delivered' ? 'PAID' : 'PENDING' }}
                     @endif
