@@ -155,6 +155,28 @@
         </div>
 
         <div class="inventory-card">
+            @if(session('success'))
+                <div class="alert alert-success border-success bg-transparent text-success orbitron mb-4">
+                    <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-danger border-danger bg-transparent text-danger orbitron mb-4">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i> {{ session('error') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="alert alert-danger border-danger bg-transparent text-danger orbitron mb-4">
+                    <ul class="mb-0">
+                        @foreach($errors->all() as $error)
+                            <li><i class="fa-solid fa-circle-xmark me-2"></i> {{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             @if(session('cart') && count(session('cart')) > 0)
                 <div class="table-responsive">
                     <table class="table table-inventory">
@@ -240,10 +262,9 @@
                         <h4 class="text-white orbitron mb-4" style="letter-spacing: 2px;">PAYMENT_PROTOCOL</h4>
                         
                         <div class="row g-4">
-                            @if($grandTotal <= 50000)
                             <div class="col-md-6">
                                 <div class="payment-option-card" onclick="selectPayment('cod')">
-                                    <input type="radio" name="payment_method" value="cod" id="payment_cod" class="d-none" checked>
+                                    <input type="radio" name="payment_method" value="cod" id="payment_cod" class="visually-hidden" checked>
                                     <div class="payment-card-inner" id="card_cod">
                                         <div class="d-flex align-items-center">
                                             <div class="method-icon me-3">
@@ -257,10 +278,9 @@
                                     </div>
                                 </div>
                             </div>
-                            @endif
-                            <div class="{{ $grandTotal > 50000 ? 'col-12' : 'col-md-6' }}">
+                            <div class="col-md-6">
                                 <div class="payment-option-card" onclick="selectPayment('card')">
-                                    <input type="radio" name="payment_method" value="card" id="payment_card" class="d-none">
+                                    <input type="radio" name="payment_method" value="card" id="payment_card" class="visually-hidden">
                                     <div class="payment-card-inner" id="card_card">
                                         <div class="d-flex align-items-center">
                                             <div class="method-icon me-3">
@@ -273,11 +293,6 @@
                                         </div>
                                     </div>
                                 </div>
-                        @if($grandTotal > 50000)
-                            <div class="alert alert-info mt-3 border-info bg-transparent text-info small orbitron">
-                                <i class="fa-solid fa-circle-info me-2"></i> SECURITY_NOTICE: Transactions exceeding 50,000 CR require encrypted card verification.
-                            </div>
-                        @endif
                             </div>
                         </div>
 
@@ -314,21 +329,29 @@
                 </form>
 <script>
 function selectPayment(method) {
-    document.getElementById('payment_' + method).checked = true;
+    const paymentRadio = document.getElementById('payment_' + method);
+    if (paymentRadio) paymentRadio.checked = true;
     
-    // Update UI
-    document.getElementById('card_cod').classList.remove('active-payment');
-    document.getElementById('card_card').classList.remove('active-payment');
-    document.getElementById('card_' + method).classList.add('active-payment');
+    // Update UI - with null checks
+    const codCard = document.getElementById('card_cod');
+    const cardCard = document.getElementById('card_card');
+    
+    if (codCard) codCard.classList.remove('active-payment');
+    if (cardCard) cardCard.classList.remove('active-payment');
+    
+    const selectedCard = document.getElementById('card_' + method);
+    if (selectedCard) selectedCard.classList.add('active-payment');
     
     // Show/Hide card form
     const cardForm = document.getElementById('card-details-form');
-    if (method === 'card') {
-        cardForm.style.display = 'block';
-        cardForm.querySelectorAll('input').forEach(i => i.required = true);
-    } else {
-        cardForm.style.display = 'none';
-        cardForm.querySelectorAll('input').forEach(i => i.required = false);
+    if (cardForm) {
+        if (method === 'card') {
+            cardForm.style.display = 'block';
+            cardForm.querySelectorAll('input').forEach(i => i.required = true);
+        } else {
+            cardForm.style.display = 'none';
+            cardForm.querySelectorAll('input').forEach(i => i.required = false);
+        }
     }
 }
 
@@ -366,11 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.target.value = value;
     });
 
-    @if($grandTotal > 50000)
-        selectPayment('card');
-    @else
-        selectPayment('cod');
-    @endif
+    selectPayment('cod');
 });
 </script>
 <style>

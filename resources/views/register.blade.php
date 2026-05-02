@@ -211,6 +211,16 @@
                                 </div>
                             @endif
 
+                            @if($errors->any())
+                                <div class="alert alert-danger bg-dark border-danger text-danger rounded-0 mb-4">
+                                    <ul class="mb-0 list-unstyled">
+                                        @foreach($errors->all() as $error)
+                                            <li><i class="fa-solid fa-circle-xmark me-2"></i> {{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+
                             <form method="POST" action="{{ url('register') }}">
                                 @csrf
                                 <div class="input-group-custom">

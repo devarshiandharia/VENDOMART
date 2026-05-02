@@ -45,10 +45,19 @@ class UserController extends Controller
         ]);
 
         // Send OTP via Email
-        Mail::send('emails.otp', ['otp' => $otp, 'name' => $request->name], function($message) use ($request) {
-            $message->to($request->email)
-                    ->subject('SECURE_LINK: Verification Code for Vendomart');
-        });
+        try {
+            Mail::send('emails.otp', ['otp' => $otp, 'name' => $request->name], function($message) use ($request) {
+                $message->to($request->email)
+                        ->subject('SECURE_LINK: Verification Code for Vendomart');
+            });
+        } catch (\Exception $e) {
+            // Log the error for the developer
+            \Log::error('Registration Mail Error: ' . $e->getMessage());
+            
+            // For development, we might want to show the OTP if mail fails, 
+            // but for now, let's just show a friendly error message.
+            return back()->with('error', 'Unable to send verification code. Please check your internet connection or mail configuration. (Error: ' . $e->getMessage() . ')');
+        }
 
         return redirect()->route('otp.verify')->with('success', 'Verification code sent to your email.');
     }

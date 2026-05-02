@@ -47,7 +47,7 @@ Route::get('verify-otp', [UserController::class, 'showVerifyOtp'])->name('otp.ve
 Route::post('verify-otp', [UserController::class, 'verifyOtp'])->name('otp.verify.post');
 
 Route::get('register1', [UserController::class, 'register1']);
-Route::get('register1', [UserController::class, 'store']);
+Route::post('register1', [UserController::class, 'store']);
 
 Route::get('login', [UserController::class, 'login'])->name('login');
 Route::post('login', [UserController::class, 'authenticate']);
